@@ -15,10 +15,10 @@ L2_len = 0.5; % Link 2 length
 L3_len = 0.2; % Link 3 length (for offset along z-axis)
 
 % Define the Denavit-Hartenberg parameters for each link
-L1 = Link('revolute', 'd', d1, 'a', 0, 'alpha', -pi/2, 'qlim', [-pi, pi]);  % Revolute joint 1, rotates around z-axis
+L1 = Link('revolute', 'd', d1, 'a', 0, 'alpha', pi/2, 'qlim', [-pi, pi]);  % Revolute joint 1, rotates around z-axis
 L2 = Link('revolute', 'd', 0, 'a', L1_len, 'alpha', 0, 'qlim', [-pi, pi]);  % Revolute joint 2, rotates around x-axis
 L3 = Link('revolute', 'd', 0, 'a', L2_len, 'alpha', 0, 'qlim', [-pi, pi]);  % Revolute joint 3, rotates around x-axis
-L4 = Link('revolute', 'd', 0, 'a', 0, 'alpha', pi/2, 'qlim', [-pi, pi]);    % Revolute joint 4, twist about z-axis
+L4 = Link('revolute', 'd', 0, 'a', 0, 'alpha', -pi/2, 'qlim', [-pi, pi]);    % Revolute joint 4, twist about z-axis
 L5 = Link('revolute', 'd', L3_len, 'a', 0, 'alpha', 0, 'qlim', [-pi, pi]);  % Revolute joint 5, rotates along z-axis
 
 %+ve or -ve alpha imapct the initial position of the end effector
