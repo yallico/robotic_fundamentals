@@ -1,0 +1,72 @@
+%Scott's trial/test to work out the work space of a wrist joint BASED
+% on THREE LINKS ONLY. If this works then I will add the remaining two. OH
+% yes this in only in 2 dimensions. I'm just trying sh*t out to get a feel
+% for it.
+
+
+L1 = 10;  % Length of the first link (base)
+L2 = 7;   % Length of the second link 
+L3 = 5;   % Length of the third link 
+
+% Change this to degrees (in next attempt)
+theta1_range = linspace(-pi, pi, 20);    % Base joint range (rotation around Z)
+theta2_range = linspace(-pi/4, pi/4, 20);
+theta3_range = linspace(-pi/4, pi/4, 20); 
+
+% Initialize arrays to store the wrist positions
+workspace_points = [];
+
+
+for theta1 = theta1_range
+    for theta2 = theta2_range
+        for theta3 = theta3_range
+            
+            % Transformation Matrices time, oh yes baby!!
+            
+            % Base rotation around Z-axis (theta1)
+            T01 = [cos(theta1), -sin(theta1), 0, 0;
+                   sin(theta1), cos(theta1),  0, 0;
+                   0,           0,           1, 0;
+                   0,           0,           0, 1];
+               
+            % Shoulder rotation around Y-axis (theta2)
+            T12 = [cos(theta2), 0, sin(theta2), 0;
+                   0,           1, 0,           0;
+                  -sin(theta2), 0, cos(theta2), L1;
+                   0,           0, 0,           1];
+            
+            % Elbow rotation around Y-axis (theta3)
+            T23 = [cos(theta3), 0, sin(theta3), 0;
+                   0,           1, 0,           0;
+                  -sin(theta3), 0, cos(theta3), L2;
+                   0,           0, 0,           1];
+            
+            % Wrist position relative to the elbow joint
+            T3wrist = [1, 0, 0, L3;
+                       0, 1, 0, 0;
+                       0, 0, 1, 0;
+                       0, 0, 0, 1];
+            
+            % Combined 
+            T0wrist = T01 * T12 * T23 * T3wrist;
+            
+            % Is this right???
+            wrist_position = T0wrist(1:3, 4);
+            
+            % Store the wrist position for workspace plotting
+            workspace_points = [workspace_points; wrist_position'];
+        end
+    end
+end
+
+% Plot workspace
+figure;
+scatter3(workspace_points(:,1), workspace_points(:,2), workspace_points(:,3), '.');
+title('Workspace of the Wrist Joint');
+xlabel('X-axis');
+ylabel('Y-axis');
+zlabel('Z-axis');
+axis equal;
+grid on;
+
+%Code seems to work!!! OK, lets try in 3D. Fingers crossed
