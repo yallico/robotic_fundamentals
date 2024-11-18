@@ -1,0 +1,111 @@
+clc; clear; close all;
+
+% One of four arm animations to plot max workspace. 
+%The four animations cover vertical and horizonal (positive and negative)
+
+%Max vertical workspace of lynxMotion arm (1) only ----remaining animations to be added
+
+% Define parameters (link lengths) random values -- will sic with overleaf document
+D1 = 10;  % D1 to l1 (base height)
+L1 = 15;  % l1 to l2
+L2 = 10;  % l2 to l3
+L3 = 5;   % Wrist to end-effector length
+
+% Set target position for vertical alignment
+x_target = 0; 
+y_target = 0; 
+z_target = D1 + L1 + L2 + L3; % End-effector directly upwards (no twist)
+
+% Check target reachability
+d = sqrt(x_target^2 + y_target^2 + (z_target - D1)^2);  % Effective distance
+d_max = L1 + L2 + L3;  % Maximum reach of the arm (ignoring base rotation)
+if d > d_max
+    error('Target position is out of reach!');
+end
+
+% Inverse Kinematics: Calculate joint angles
+% Step 1: Base rotation (theta1)
+theta1 = 0;  % No base rotation, arm is aligned on the z-axis
+
+% Step 2: Calculate pitch to target plane (theta2)
+z_eff = z_target - D1;  % Adjust for base height
+cos_theta2 = (L1^2 + d^2 - L2^2) / (2 * L1 * d);  % Law of Cosines for shoulder
+cos_theta2 = max(min(cos_theta2, 1), -1);  % Clamp to a valid range (clamping helps eliminate imaginary numbers in the calculations) 
+theta2 = pi/2;  % Shoulder pitch to point upwards
+
+% Step 3: Calculate elbow angle (theta3)
+theta3 = 0;  % Elbow angle to extend the arm straight
+
+% Step 4: Wrist orientation (theta4)
+theta4 = 0;  % Wrist angle to align with target
+
+% Step 5: Wrist twist (theta5)
+theta5 = 0;  % No twist (optional parameter)
+
+% Forward Kinematics: Calculate joint positions
+% Base position
+base_x = 0; base_y = 0; base_z = 0;
+
+% l1 position
+shoulder_x = base_x;
+shoulder_y = base_y;
+shoulder_z = D1;
+
+% l2 position
+elbow_x = shoulder_x + L1 * cos(theta1) * cos(theta2);
+elbow_y = shoulder_y + L1 * sin(theta1) * cos(theta2);
+elbow_z = shoulder_z + L1 * sin(theta2);
+
+% Wrist position (l2)
+wrist_x = elbow_x + L2 * cos(theta1) * cos(theta2 + theta3);
+wrist_y = elbow_y + L2 * sin(theta1) * cos(theta2 + theta3);
+wrist_z = elbow_z + L2 * sin(theta2 + theta3);
+
+% End-effector position
+end_x = wrist_x + L3 * cos(theta1) * cos(theta2 + theta3 + theta4);
+end_y = wrist_y + L3 * sin(theta1) * cos(theta2 + theta3 + theta4);
+end_z = wrist_z + L3 * sin(theta2 + theta3 + theta4);
+
+% Plot the robotic arm
+figure;
+plot3([base_x, shoulder_x, elbow_x, wrist_x, end_x], ...
+      [base_y, shoulder_y, elbow_y, wrist_y, end_y], ...
+      [base_z, shoulder_z, elbow_z, wrist_z, end_z], 'o-', 'LineWidth', 2);
+hold on;
+
+% Add labels for visualization
+scatter3(x_target, y_target, z_target, 100, 'r', 'filled'); % Target point
+grid on;
+xlabel('X-axis'); ylabel('Y-axis'); zlabel('Z-axis');
+title('5-DOF Robotic Arm Simulation');
+axis equal;
+
+% Animate the arm (optional)
+numSteps = 20;
+for t = linspace(0, 1, numSteps)
+    % Gradually interpolate angles
+    theta1_t = t * theta1;
+    theta2_t = t * theta2;
+    theta3_t = t * theta3;
+    theta4_t = t * theta4;
+
+    % Recalculate joint positions for animation
+    elbow_x_t = shoulder_x + L1 * cos(theta1_t) * cos(theta2_t);
+    elbow_y_t = shoulder_y + L1 * sin(theta1_t) * cos(theta2_t);
+    elbow_z_t = shoulder_z + L1 * sin(theta2_t);
+
+    wrist_x_t = elbow_x_t + L2 * cos(theta1_t) * cos(theta2_t + theta3_t);
+    wrist_y_t = elbow_y_t + L2 * sin(theta1_t) * cos(theta2_t + theta3_t);
+    wrist_z_t = elbow_z_t + L2 * sin(theta2_t + theta3_t);
+
+    end_x_t = wrist_x_t + L3 * cos(theta1_t) * cos(theta2_t + theta3_t + theta4_t);
+    end_y_t = wrist_y_t + L3 * sin(theta1_t) * cos(theta2_t + theta3_t + theta4_t);
+    end_z_t = wrist_z_t + L3 * sin(theta2_t + theta3_t + theta4_t);
+
+    % Update the plot
+    plot3([base_x, shoulder_x, elbow_x_t, wrist_x_t, end_x_t], ...
+          [base_y, shoulder_y, elbow_y_t, wrist_y_t, end_y_t], ...
+          [base_z, shoulder_z, elbow_z_t, wrist_z_t, end_z_t], 'o-', 'LineWidth', 2);
+    drawnow;
+    pause(0.05);
+end
