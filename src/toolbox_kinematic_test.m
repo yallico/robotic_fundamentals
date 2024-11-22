@@ -9,10 +9,10 @@ close all
 syms theta1 theta2 theta3 theta4 theta5
 
 % Define the link lengths and offsets
-d1 = 0.2;   % Base offset (along the z-axis)
-L1_len = 0.5; % Link 1 length
-L2_len = 0.5; % Link 2 length
-L3_len = 0.2; % Link 3 length (for offset along z-axis)
+d1 = 1;   % Base offset (along the z-axis)
+L1_len = 1; % Link 1 length
+L2_len = 1; % Link 2 length
+L3_len = 1; % Link 3 length (for offset along z-axis)
 
 % Define the Denavit-Hartenberg parameters for each link
 L1 = Link('revolute', 'd', d1, 'a', 0, 'alpha', pi/2, 'qlim', [-pi, pi]);  % Revolute joint 1, rotates around z-axis
